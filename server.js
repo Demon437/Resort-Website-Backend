@@ -8,9 +8,17 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
+// Middleware - CORS configuration for multiple origins
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:3000').split(',').map(origin => origin.trim());
+
 app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 }));
 app.use(express.json());
