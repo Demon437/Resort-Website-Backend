@@ -39,13 +39,14 @@ export const sendEnquiryEmail = async (formData) => {
 
     // Send to admin
     const adminSubject = `[BOOKING] ${formData.roomType} | ${formData.guests} Guest(s) | ${formData.checkIn} | ${formData.name}`;
-    await resend.emails.send({
+    const adminResponse = await resend.emails.send({
       from: 'Resort Bookings <onboarding@resend.dev>',
       to: process.env.ADMIN_EMAIL,
       replyTo: formData.email,
       subject: adminSubject,
       html: emailContent
     });
+    console.log('📧 Admin email response:', adminResponse);
 
     // Send confirmation email to customer
     const customerEmail = `
@@ -81,12 +82,13 @@ export const sendEnquiryEmail = async (formData) => {
     </div>
     `;
 
-    await resend.emails.send({
+    const customerResponse = await resend.emails.send({
       from: 'Resort Bookings <onboarding@resend.dev>',
       to: formData.email,
       subject: 'Booking Enquiry Confirmation - We Received Your Request',
       html: customerEmail
     });
+    console.log('📧 Customer email response:', customerResponse);
 
     return { success: true, message: 'Emails sent successfully' };
   } catch (error) {
