@@ -8,7 +8,14 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
-  }
+  },
+  // Add timeout and connection settings for Render deployment
+  connectionTimeout: 10000, // 10 seconds
+  socketTimeout: 10000,     // 10 seconds
+  maxConnections: 1,
+  maxMessages: 5,
+  rateDelta: 1000,
+  rateLimit: 5
 });
 
 export const sendEnquiryEmail = async (formData) => {
