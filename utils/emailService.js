@@ -1,9 +1,17 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Brevo SMTP Configuration
+const transporter = nodemailer.createTransport({
+  host: 'smtp-relay.brevo.com',
+  port: 587,
+  auth: {
+    user: process.env.BREVO_EMAIL,
+    pass: process.env.BREVO_API_KEY
+  }
+});
 
 export const sendEnquiryEmail = async (formData) => {
   try {
@@ -39,14 +47,14 @@ export const sendEnquiryEmail = async (formData) => {
 
     // Send to admin
     const adminSubject = `[BOOKING] ${formData.roomType} | ${formData.guests} Guest(s) | ${formData.checkIn} | ${formData.name}`;
-    const adminResponse = await resend.emails.send({
-      from: 'Resort Bookings <onboarding@resend.dev>',
+    const adminResponse = await transporter.sendMail({
+      from: `Resort Bookings <${process.env.BREVO_EMAIL}>`,
       to: process.env.ADMIN_EMAIL,
       replyTo: formData.email,
       subject: adminSubject,
       html: emailContent
     });
-    console.log('📧 Admin email response:', adminResponse);
+    console.log('📧 Admin email sent:', adminResponse.response);
 
     // Send confirmation email to customer
     const customerEmail = `
@@ -82,13 +90,13 @@ export const sendEnquiryEmail = async (formData) => {
     </div>
     `;
 
-    const customerResponse = await resend.emails.send({
-      from: 'Resort Bookings <onboarding@resend.dev>',
+    const customerResponse = await transporter.sendMail({
+      from: `Resort Bookings <${process.env.BREVO_EMAIL}>`,
       to: formData.email,
       subject: 'Booking Enquiry Confirmation - We Received Your Request',
       html: customerEmail
     });
-    console.log('📧 Customer email response:', customerResponse);
+    console.log('📧 Customer email sent:', customerResponse.response);
 
     return { success: true, message: 'Emails sent successfully' };
   } catch (error) {
