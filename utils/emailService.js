@@ -40,7 +40,7 @@ export const sendEnquiryEmail = async (formData) => {
     // Send to admin
     const adminSubject = `[BOOKING] ${formData.roomType} | ${formData.guests} Guest(s) | ${formData.checkIn} | ${formData.name}`;
     await resend.emails.send({
-      from: 'noreply@resend.dev',
+      from: 'Resort Bookings <onboarding@resend.dev>',
       to: process.env.ADMIN_EMAIL,
       replyTo: formData.email,
       subject: adminSubject,
@@ -82,7 +82,7 @@ export const sendEnquiryEmail = async (formData) => {
     `;
 
     await resend.emails.send({
-      from: 'noreply@resend.dev',
+      from: 'Resort Bookings <onboarding@resend.dev>',
       to: formData.email,
       subject: 'Booking Enquiry Confirmation - We Received Your Request',
       html: customerEmail
