@@ -30,11 +30,11 @@ export const sendEnquiryEmail = async (data) => {
       {
         headers: {
           "api-key": process.env.BREVO_API_KEY,
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
       }
     );
-
+console.log("API KEY:", process.env.BREVO_API_KEY);
     console.log("✅ Email sent:", response.data);
   } catch (error) {
     console.error("❌ Email error:", error.response?.data || error.message);
