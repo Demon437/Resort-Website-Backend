@@ -1,22 +1,9 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  },
-  // Add timeout and connection settings for Render deployment
-  connectionTimeout: 10000, // 10 seconds
-  socketTimeout: 10000,     // 10 seconds
-  maxConnections: 1,
-  maxMessages: 5,
-  rateDelta: 1000,
-  rateLimit: 5
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendEnquiryEmail = async (formData) => {
   try {
@@ -52,8 +39,8 @@ export const sendEnquiryEmail = async (formData) => {
 
     // Send to admin
     const adminSubject = `[BOOKING] ${formData.roomType} | ${formData.guests} Guest(s) | ${formData.checkIn} | ${formData.name}`;
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+    await resend.emails.send({
+      from: 'noreply@resend.dev',
       to: process.env.ADMIN_EMAIL,
       replyTo: formData.email,
       subject: adminSubject,
@@ -94,8 +81,8 @@ export const sendEnquiryEmail = async (formData) => {
     </div>
     `;
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+    await resend.emails.send({
+      from: 'noreply@resend.dev',
       to: formData.email,
       subject: 'Booking Enquiry Confirmation - We Received Your Request',
       html: customerEmail

@@ -9,23 +9,18 @@ Go to your Render service dashboard → Environment → add these variables:
 MONGO_URI=your_mongodb_connection_string
 ```
 
-### 2. **Email Configuration (IMPORTANT)**
-
-**Option A: Gmail (with App Password - RECOMMENDED)**
+### 2. **Email Configuration (Resend - RECOMMENDED)**
 ```
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASS=your_16_digit_app_password
+RESEND_API_KEY=re_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ADMIN_EMAIL=admin@yourresort.com
 ADMIN_PHONE=+91-XXXXXXXXXX
 ```
 
-**Getting Gmail App Password:**
-1. Go to Google Account → Security
-2. Enable "2-Step Verification" (if not already enabled)
-3. Go to Security → App passwords
-4. Select app: Mail, Select device: Windows Computer
-5. Google will generate a 16-character password
-6. Copy this password to `EMAIL_PASS` (remove spaces)
+**Getting Resend API Key:**
+1. Go to https://resend.com (free tier: 100 emails/day)
+2. Sign up with your email
+3. Go to API Keys → Create New API Key
+4. Copy the key to `RESEND_API_KEY`
 
 ### 3. **Frontend URL**
 ```
@@ -41,40 +36,15 @@ PORT=5000
 
 ## Common Issues & Fixes
 
-### ❌ **Error: "Connection timeout" (ETIMEDOUT)**
+### ❌ **Email Not Sending**
 
-**Signs:**
-- Backend shows: `Connection timeout` error
-- SMTP connection timing out
+**Fix:** Use Resend (already set up in code)
+1. Sign up at https://resend.com
+2. Get API Key
+3. Add to Render: `RESEND_API_KEY=re_...`
+4. Redeploy
 
-**Solutions (in order):**
-
-1. **Verify Gmail App Password** (not regular password)
-   - Regular passwords don't work with third-party apps
-   - Must use 16-character App Password
-
-2. **Check 2-Step Verification is enabled**
-   - App passwords only work when 2FA is ON
-
-3. **Try different SMTP settings:**
-   ```
-   Port: 587 (TLS - recommended)
-   or
-   Port: 465 (SSL)
-   ```
-
-4. **Test locally first:**
-   ```bash
-   npm install nodemailer
-   node test-email.js
-   ```
-
-### ❌ **Error: "Authentication failed"**
-
-**Fix:**
-- Ensure EMAIL_USER and EMAIL_PASS are correct
-- Use Gmail's 16-character App Password, not your Google password
-- Check for extra spaces in environment variables
+✅ Resend is **free**, **reliable**, and **works perfectly with Render**
 
 ### ❌ **404 Error on Frontend**
 
@@ -88,48 +58,51 @@ Make sure this is your actual Vercel/deployed frontend URL
 
 ## Testing the Setup
 
-1. **Test email locally first:**
+1. **Install dependencies first:**
 ```bash
 cd Backend
-npm install dotenv nodemailer mongoose express cors
+npm install
 ```
 
-2. **Create test file** (`test-email.js`):
-```javascript
-import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
-
-transporter.verify((error, success) => {
-  if (error) {
-    console.error('Email configuration error:', error);
-  } else {
-    console.log('✅ Email ready!!');
-  }
-});
+2. **Test email locally** - Create `.env` file with:
+```
+MONGO_URI=your_mongodb_connection_string
+RESEND_API_KEY=re_your_api_key
+ADMIN_EMAIL=admin@yourresort.com
+ADMIN_PHONE=+91-9876543210
+CLIENT_URL=http://localhost:3000
+PORT=5000
 ```
 
-3. **Run test:**
+3. **Start server:**
 ```bash
-node test-email.js
+npm run dev
 ```
+
+4. **Test with cURL or Postman:**
+```bash
+curl -X POST http://localhost:5000/api/submit-enquiry \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Test User",
+    "email": "test@example.com",
+    "phone": "9876543210",
+    "roomType": "Deluxe",
+    "guests": 2,
+    "checkIn": "2024-04-01",
+    "checkOut": "2024-04-05",
+    "message": "Test booking"
+  }'
+```
+
+✅ If email arrives → Setup is working!
 
 ---
 
 ## Updated Environment Variables Checklist
 
 - [ ] MONGO_URI (MongoDB connection string)
-- [ ] EMAIL_USER (Gmail address)
-- [ ] EMAIL_PASS (Gmail App Password - 16 characters)
+- [ ] RESEND_API_KEY (from resend.com)
 - [ ] ADMIN_EMAIL (Where to send bookings)
 - [ ] ADMIN_PHONE (Contact number)
 - [ ] CLIENT_URL (Your frontend URL)
