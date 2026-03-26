@@ -7,12 +7,17 @@ const router = express.Router();
 // Submit booking enquiry
 router.post('/submit-enquiry', async (req, res) => {
     try {
+        console.log('📩 Enquiry received:', req.body);
+
         const { name, email, phone, roomType, guests, checkIn, checkOut, message } = req.body;
 
         // Validate required fields
         if (!name || !email || !phone || !guests || !checkIn || !checkOut || !message) {
+            console.log('❌ Missing required fields');
             return res.status(400).json({ error: 'All fields are required' });
         }
+
+        console.log('✅ Validation passed');
 
         // Create new enquiry
         const enquiry = new Enquiry({
@@ -28,6 +33,7 @@ router.post('/submit-enquiry', async (req, res) => {
 
         // Save to database
         await enquiry.save();
+        console.log('💾 Enquiry saved to database:', enquiry._id);
 
         // Send email notifications
         await sendEnquiryEmail({
@@ -40,6 +46,7 @@ router.post('/submit-enquiry', async (req, res) => {
             checkOut,
             message
         });
+        console.log('📧 Email sent successfully');
 
         res.status(200).json({
             success: true,
@@ -47,7 +54,7 @@ router.post('/submit-enquiry', async (req, res) => {
             enquiryId: enquiry._id
         });
     } catch (error) {
-        console.error('Error submitting enquiry:', error);
+        console.error('❌ Error submitting enquiry:', error);
         res.status(500).json({
             error: 'Failed to submit enquiry. Please try again.',
             details: error.message
